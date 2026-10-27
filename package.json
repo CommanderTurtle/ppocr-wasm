@@ -1,0 +1,25 @@
+{
+  "name": "ppocr-wasm",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "exports": { ".": { "types": "./dist/ppocr.d.ts", "import": "./dist/ppocr.js" } },
+  "scripts": {
+    "assets": "bun scripts/assets.mjs",
+    "build": "bun scripts/build.mjs",
+    "dev": "bun scripts/build.mjs --serve",
+    "start": "bun scripts/serve.mjs",
+    "test": "bun test tests/unit.test.js",
+    "check:browser": "bun scripts/check-browser.mjs"
+  },
+  "dependencies": {
+    "@paddleocr/paddleocr-js": "0.4.2",
+    "@techstark/opencv-js": "4.10.0-release.1",
+    "onnxruntime-web": "1.30.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "vite": "8.3.5"
+  }
+}
