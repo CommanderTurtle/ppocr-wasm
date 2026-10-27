@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OCR</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"><link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main>
+    <header><div><p class="eyebrow">PP-OCRv6 · local inference</p><h1>OCR</h1></div><a href="./README.md">API & deployment</a></header>
+    <section class="toolbar">
+      <label class="file">Choose image<input id="file" type="file" accept="image/*"></label>
+      <label>Runtime<select id="backend"><option value="wasm">CPU / WASM</option><option value="auto">WebGPU with CPU fallback</option><option value="webgpu">WebGPU only</option></select></label>
+      <button id="run" disabled>Recognize</button><button id="cancel" disabled>Cancel</button>
+    </section>
+    <p id="status" role="status">Choose, drop, or paste an image. Nothing is uploaded.</p>
+    <div class="panels">
+      <section id="drop" class="source"><h2>Source</h2><div class="image"><img id="preview" alt="Selected image" hidden><p id="placeholder">Drop an image here</p></div></section>
+      <section><div class="heading"><h2>Text</h2><button id="copy" disabled>Copy</button><button id="save" disabled>JSON</button></div><textarea id="text" aria-label="Recognized text" spellcheck="false" placeholder="Recognized text appears here"></textarea></section>
+    </div>
+    <footer id="details">CPU is the default. Models stay loaded until you change runtime or close the page.</footer>
+  </main>
+  <script type="module" src="./demo.js"></script>
+</body>
+</html>
