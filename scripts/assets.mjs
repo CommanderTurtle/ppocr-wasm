@@ -1,8 +1,11 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
 export const root = new URL('../', import.meta.url);
 export const models = JSON.parse(await readFile(new URL('models.json', root), 'utf8'));
+export const mirage = JSON.parse(await readFile(new URL('mirage.json', root), 'utf8'));
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 
 export async function prepareModels() {
@@ -20,4 +23,19 @@ export async function prepareModels() {
   }
 }
 
-if (import.meta.main) await prepareModels();
+export async function prepareMirage() {
+  for (const asset of mirage.files) {
+    const target = new URL(`.cache/mirage/${asset.path}`, root);
+    const cached = await readFile(target).catch(() => null);
+    if (cached && hash(cached) === asset.sha256) continue;
+    console.log(`Downloading ${asset.path}`);
+    const response = await fetch(asset.url, { signal: AbortSignal.timeout(180000) });
+    if (!response.ok) throw Error(`${asset.path}: HTTP ${response.status}`);
+    const data = Buffer.from(await response.arrayBuffer());
+    if (hash(data) !== asset.sha256) throw Error(`${asset.path}: SHA-256 mismatch.`);
+    await mkdir(dirname(fileURLToPath(target)), { recursive: true });
+    await writeFile(target, data);
+  }
+}
+
+if (import.meta.main) { await prepareModels(); await prepareMirage(); }

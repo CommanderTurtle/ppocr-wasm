@@ -2,6 +2,8 @@
 
 Self-hosted PP-OCRv6 small with a Tesseract.js-style interface. Uses the [official PaddleOCR browser SDK](https://github.com/PaddlePaddle/PaddleOCR/tree/main/paddleocr-js), ONNX Runtime Web and OpenCV.js. OCR runs in a browser worker, not on a server. CPU/WASM is the default; WebGPU is optional.
 
+The demo also offers [Cactus Mirage](https://cactuscompute.com/blog/mirage): scene descriptions, objects and masks, OCR, relationships and structured decisions. Each engine loads only on Run, in its own disposable worker. Finishing, cancelling or leaving the page releases its model memory; downloaded assets use the browser's normal HTTP cache.
+
 ## Build
 
 ```sh
@@ -20,7 +22,7 @@ cd dist; bun install; bun update; bun run build
 
 </details>
 
-First build downloads and SHA-256 verifies the two official model archives (about 31 MB). `bun run build` writes `dist/` without starting a server. `bun start` serves an existing build at `http://127.0.0.1:8198/`.
+First build downloads and SHA-256 verifies the two official Paddle archives (about 31 MB), Mirage (22 MB) and Cactus WASM (1.3 MB). `bun run build` writes `dist/` without starting a server. `bun start` serves an existing build at `http://127.0.0.1:8198/`.
 
 Deploy the complete `dist/` on any HTTP(S) static host, preserving relative paths. Nested paths work without a base-path rebuild. No inference server, CDN, Python, PaddlePaddle installation or API key is needed. Serve over HTTP(S), not `file://`. WebGPU needs HTTPS or localhost and a compatible browser/device.
 
@@ -29,6 +31,25 @@ All model/runtime requests are to the deployed bundle by default. The demo's CSP
 This is a self-contained directory, not a single inline HTML file. A wrapper must preserve the worker, runtime `.mjs`/`.wasm` files and model URLs, not just inline `ppocr.js`.
 
 ## API
+
+### Mirage
+
+```js
+const { describe } = await import('./mirage.js');
+const result = await describe(file, {
+  signal: controller.signal,
+  language: 'en',
+  options: { sections: ['objects', 'text'], mask_format: 'polygons' }
+});
+// Or: options: { form: { sign: { enum: ['stop', 'yield', 'speed limit'] } } }
+console.log(result.data);
+```
+
+Mirage's boxes and polygon points use 0–1000 normalized coordinates. The demo overlays them without modifying the source image. Forms accept enums, bounded integers, strings and `x-source` references; scores and abstentions remain model output. Non-finite native scores become JSON `null`, leaving recognized strings untouched. This is structured perception, not an unrestricted conversational model.
+
+The separate Mirage entry leaves the Paddle interface unchanged. `mirage.json` pins Cactus 4.1.0 (`4e822c9`) and Mirage (`76c1e9e`), including checksums for every artifact. Engine and model are Apache-2.0; see `credits/Cactus.txt`. The integration and demo remain AGPL-3.0-only.
+
+### Paddle
 
 ```js
 import { createWorker } from './ppocr.js';
