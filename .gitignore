@@ -1,5 +1,7 @@
 node_modules/
 dist*/
-.cache/
 artifacts/
 mywrap*/
+.work/local-history/
+.work/cactus-source/
+.work/mirage-space/
